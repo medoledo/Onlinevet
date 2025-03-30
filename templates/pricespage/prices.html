@@ -2,121 +2,249 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
-    <h1>Price List</h1>
-
-    <!-- Search and Filter Form -->
-    <form method="GET" action="{% url 'prices' %}" class="mb-3" id="search-form">
-        <div class="input-group mb-2">
-            <div style="width: 70%;">
-                <input type="text" name="search" value="{{ query }}" class="form-control" placeholder="Search by item name..." id="search-input">
-            </div>
-        </div>
-        <div class="input-group mb-2">
-            <div style="width: 70%;">
-                <select name="category" class="form-control">
-                    <option value="">Filter by Category</option>
-                    {% for category in categories %}
-                        <option value="{{ category.name }}" {% if query_category == category.name %}selected{% endif %}>{{ category.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
+<div class="container-lg px-3 py-4">
+    <!-- Header Section -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
-            <button type="submit" class="btn btn-primary">Search & Filter</button>
-            <a href="?low_stock=true" class="btn btn-danger">Show Low Stock Items</a>
-            <a href="?sort_exp=true" class="btn btn-warning">Show Nearest Expiration Date</a>
-            <a href="?show_expired=true" class="btn btn-dark">Show Expired Items</a>
+            <h1 class="h3 mb-1">Inventory Management</h1>
+            <p class="text-muted mb-0">Total items: {{ items|length }}</p>
         </div>
-    </form>
+        <a href="{% url 'download_price_list' %}" class="btn btn-sm btn-outline-dark">
+            <i class="fas fa-file-export me-2"></i>Export
+        </a>
+    </div>
 
-    <!-- Display Items Table -->
-    <div style="padding-bottom: 1000px;">
-        <table class="table table-bordered mt-3" id="items-table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Expiration Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if items %}
-                    {% for item in items %}
-                        <tr>
-                            <td {% if item.exp and item.exp < today %} style="color: red; font-weight: bold;" {% endif %}>
-                                {{ item.name }}
-                            </td>
-                            <td>{{ item.category.name }}</td>
-                            <td>${{ item.price }}</td>
-                            <td {% if item.quantity < 5 %} style="background-color: #ffcccc;" {% endif %}>
-                                {{ item.quantity }}
-                            </td>
-                            <td>{{ item.exp|date:"Y-m-d" }}</td>
-                        </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="5" class="text-center">No items found.</td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
+    <!-- Filter Section -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <form method="GET" action="{% url 'prices' %}" id="search-form">
+                <div class="row g-2">
+                    <div class="col-12 col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" name="search" value="{{ query }}" 
+                                   class="form-control border-start-0" 
+                                   placeholder="Search inventory...">
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-end-0">
+                                <i class="fas fa-tag text-muted"></i>
+                            </span>
+                            <select name="category" class="form-select border-start-0">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                <option value="{{ category.name }}" 
+                                    {% if query_category == category.name %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
 
-        <!-- Download Button -->
-        <div class="text-end mb-3" style="padding-right: 100px;">
-            <a href="{% url 'download_price_list' %}" class="btn btn-secondary">Download as Excel</a>
+                    <div class="col-12">
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-filter me-2"></i>Filter
+                            </button>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="?low_stock=true" class="btn btn-outline-danger">
+                                    Low Stock <span class="badge bg-danger ms-2">{{ low_stock_count }}</span>
+                                </a>
+                                <a href="?sort_exp=true" class="btn btn-outline-warning">
+                                    Expiring Soon
+                                </a>
+                                <a href="?show_expired=true" class="btn btn-outline-dark">
+                                    Expired <span class="badge bg-dark ms-2">{{ expired_count }}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
+    </div>
+
+    <!-- Inventory Grid -->
+    <div class="row g-3" id="items-grid">
+        {% if items %}
+            {% for item in items %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm border-0 {% if item.exp and item.exp < today %}expired-item{% endif %}">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h5 class="mb-0">
+                                    {{ item.name }}
+                                    {% if item.exp and item.exp < today %}
+                                    <i class="fas fa-exclamation-circle text-danger ms-2"></i>
+                                    {% endif %}
+                                </h5>
+                                <small class="text-muted">{{ item.category.name }}</small>
+                            </div>
+                            <span class="badge {% if item.quantity < 5 %}bg-danger{% else %}bg-secondary{% endif %}">
+                                {{ item.quantity }} left
+                            </span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-end mt-3">
+                            <div>
+                                <div class="h5 mb-0 text-primary">${{ item.price }}</div>
+                                <small class="text-muted">Unit price</small>
+                            </div>
+                            <div class="text-end">
+                                {% if item.exp %}
+                                <div class="text-sm {% if item.exp < today %}text-danger{% else %}text-muted{% endif %}">
+                                    <i class="fas fa-calendar-day me-1"></i>
+                                    {{ item.exp|date:"M Y" }}
+                                </div>
+                                {% else %}
+                                <div class="text-muted">No expiry</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="text-center py-5 bg-light rounded-3">
+                    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No items found</h5>
+                </div>
+            </div>
+        {% endif %}
     </div>
 </div>
 
 <!-- jQuery for AJAX -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('#search-input').on('input', function() {
-            var query = $(this).val();
-            var category = $('select[name="category"]').val();
-            var lowStock = '{{ request.GET.low_stock }}';
-            var sortExp = '{{ request.GET.sort_exp }}';
-            var showExpired = '{{ request.GET.show_expired }}';
+$(document).ready(function() {
+    const debounceSearch = (func, delay) => {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), delay);
+        };
+    };
 
-            $.ajax({
-                url: '{% url "prices" %}',
-                data: {
-                    'search': query,
-                    'category': category,
-                    'low_stock': lowStock,
-                    'sort_exp': sortExp,
-                    'show_expired': showExpired
-                },
-                dataType: 'json',
-                success: function(response) {
-                    var rows = '';
-                    response.items.forEach(function(item) {
-                        var textColor = item.is_expired ? 'style="color: red; font-weight: bold;"' : '';
-                        var quantityStyle = item.quantity < 5 ? 'style="background-color: #ffcccc;"' : '';
+    const updateGrid = debounceSearch(() => {
+        const formData = $('#search-form').serialize();
+        const params = new URLSearchParams(formData);
+        
+        params.set('low_stock', '{{ request.GET.low_stock }}');
+        params.set('sort_exp', '{{ request.GET.sort_exp }}');
+        params.set('show_expired', '{{ request.GET.show_expired }}');
 
-                        rows += 
-                            `<tr>
-                                <td ${textColor}>${item.name}</td>
-                                <td>${item.category}</td>
-                                <td>$${item.price}</td>
-                                <td ${quantityStyle}>${item.quantity}</td>
-                                <td>${item.exp}</td>
-                            </tr>`;
-                    });
+        $.ajax({
+            url: '{% url "prices" %}?' + params.toString(),
+            dataType: 'json',
+            success: function(response) {
+                let itemsHtml = '';
+                response.items.forEach(item => {
+                    itemsHtml += `
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm border-0 ${item.is_expired ? 'expired-item' : ''}">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h5 class="mb-0">
+                                            ${item.name}
+                                            ${item.is_expired ? 
+                                            '<i class="fas fa-exclamation-circle text-danger ms-2"></i>' : ''}
+                                        </h5>
+                                        <small class="text-muted">${item.category}</small>
+                                    </div>
+                                    <span class="badge ${item.quantity < 5 ? 'bg-danger' : 'bg-secondary'}">
+                                        ${item.quantity} left
+                                    </span>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-end mt-3">
+                                    <div>
+                                        <div class="h5 mb-0 text-primary">$${item.price}</div>
+                                        <small class="text-muted">Unit price</small>
+                                    </div>
+                                    <div class="text-end">
+                                        ${item.exp ? 
+                                        `<div class="text-sm ${item.is_expired ? 'text-danger' : 'text-muted'}">
+                                            <i class="fas fa-calendar-day me-1"></i>
+                                            ${item.exp}
+                                        </div>` : 
+                                        '<div class="text-muted">No expiry</div>'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
 
-                    if (!rows) {
-                        rows = `<tr><td colspan="5" class="text-center">No items found.</td></tr>`;
-                    }
-                    $('#items-table tbody').html(rows);
-                }
-            });
+                $('#items-grid').html(itemsHtml || `
+                    <div class="col-12">
+                        <div class="text-center py-5 bg-light rounded-3">
+                            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No items found</h5>
+                        </div>
+                    </div>
+                `);
+            }
         });
-    });
+    }, 300);
+
+    $('#search-form input, #search-form select').on('input change', updateGrid);
+});
 </script>
+
+<style>
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid rgba(0,0,0,0.075);
+    }
+    
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.05);
+    }
+    
+    .expired-item {
+        border-left: 4px solid #dc3545;
+    }
+    
+    .badge {
+        font-weight: 500;
+        letter-spacing: 0.05em;
+    }
+    
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 1.25rem;
+        }
+        
+        .h5 {
+            font-size: 1.1rem;
+        }
+        
+        .badge {
+            font-size: 0.8rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .card {
+            border-radius: 0.75rem;
+        }
+        
+        .input-group-text {
+            padding: 0.5rem 0.75rem;
+        }
+    }
+</style>
 
 {% endblock %}

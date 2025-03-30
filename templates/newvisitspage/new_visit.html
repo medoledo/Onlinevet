@@ -1,64 +1,120 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>New Visit</h1>
-<a href="{% url 'add_visit' %}" class="btn btn-primary">Add New Visit</a>
+<div class="container">
+    <h1 class="mb-4">New Visit</h1>
+    <a href="{% url 'add_visit' %}" class="btn btn-primary mb-4 w-100 w-md-auto">Add New Visit</a>
 
-<!-- Search Filters Form -->
-<div class="mb-4">
-    <form method="GET" class="form-inline">
-        <!-- Search by Owner Name -->
-        <div class="form-group mr-3">
-            <label for="owner_name" class="mr-2">Owner Name:</label>
-            <input type="text" id="owner_name" name="owner_name" class="form-control" placeholder="Search by name" value="{{ request.GET.owner_name }}">
+    <!-- Search Filters -->
+    <form method="GET" class="mb-4">
+        <div class="row g-3">
+            <div class="col-12 col-md-6 col-lg-3">
+                <input type="text" id="owner_name" name="owner_name" 
+                       class="form-control" placeholder="Owner Name"
+                       value="{{ request.GET.owner_name }}">
+            </div>
+            
+            <div class="col-12 col-md-6 col-lg-3">
+                <input type="text" id="phone_number" name="phone_number"
+                       class="form-control" placeholder="Phone Number"
+                       value="{{ request.GET.phone_number }}">
+            </div>
+            
+            <div class="col-12 col-md-6 col-lg-2">
+                <input type="date" id="from_date" name="from_date"
+                       class="form-control" placeholder="From Date"
+                       value="{{ request.GET.from_date }}">
+            </div>
+            
+            <div class="col-12 col-md-6 col-lg-2">
+                <input type="date" id="to_date" name="to_date"
+                       class="form-control" placeholder="To Date"
+                       value="{{ request.GET.to_date }}">
+            </div>
+            
+            <div class="col-12 col-md-6 col-lg-2">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </div>
         </div>
-
-        <!-- Search by Phone Number -->
-        <div class="form-group mr-3">
-            <label for="phone_number" class="mr-2">Phone Number:</label>
-            <input type="text" id="phone_number" name="phone_number" class="form-control" placeholder="Search by phone" value="{{ request.GET.phone_number }}">
-        </div>
-
-        <!-- From-To Date Filter -->
-        <div class="form-group mr-3">
-            <label for="from_date" class="mr-2">From Date:</label>
-            <input type="date" id="from_date" name="from_date" class="form-control" value="{{ request.GET.from_date }}">
-        </div>
-
-        <div class="form-group mr-3">
-            <label for="to_date" class="mr-2">To Date:</label>
-            <input type="date" id="to_date" name="to_date" class="form-control" value="{{ request.GET.to_date }}">
-        </div>
-
-        <!-- Search Button -->
-        <button type="submit" class="btn btn-primary">Search</button>
     </form>
-</div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Owner</th>
-            <th>Phone Number</th>
-            <th>Pet Name</th>
-            <th>Visit Date</th>
-            <th>Next Check Date</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for visit in visits %}
-            <tr>
-                <td>{{ visit.owner.name }}</td>
-                <td>{{ visit.owner.phone_number }}</td>
-                <td>{{ visit.pet_name }}</td>
-                <td>{{ visit.visit_date }}</td>
-                <td>{{ visit.next_check_date }}</td>
-                <td>
-                    <a href="{% url 'view_visit' visit.id %}" class="btn btn-info">View Visit</a>
-                </td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <!-- Responsive Table -->
+    <div class="table-responsive">
+        <table class="table">
+            <thead class="d-none d-md-table-header-group">
+                <tr>
+                    <th>Owner</th>
+                    <th>Phone</th>
+                    <th>Pet</th>
+                    <th>Visit Date</th>
+                    <th>Next Check</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for visit in visits %}
+                    <tr>
+                        <td data-label="Owner">{{ visit.owner.name }}</td>
+                        <td data-label="Phone">{{ visit.owner.phone_number }}</td>
+                        <td data-label="Pet">{{ visit.pet_name }}</td>
+                        <td data-label="Visit Date">{{ visit.visit_date }}</td>
+                        <td data-label="Next Check">{{ visit.next_check_date }}</td>
+                        <td data-label="Actions">
+                            <a href="{% url 'view_visit' visit.id %}" 
+                               class="btn btn-info btn-sm">View</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No visits found</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <style>
+        @media (max-width: 767.98px) {
+            /* Mobile table styling */
+            .table tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid #dee2e6;
+                border-radius: 0.25rem;
+            }
+            
+            .table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border: none;
+                padding: 0.75rem;
+            }
+            
+            .table td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                margin-right: 1rem;
+                flex: 0 0 40%;
+            }
+            
+            .table td[colspan] {
+                display: table-cell;
+                text-align: center;
+            }
+            
+            /* Button adjustments */
+            .btn-sm {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</div>
 {% endblock %}

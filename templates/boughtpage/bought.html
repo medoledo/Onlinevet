@@ -4,66 +4,128 @@
 <div class="container mt-4">
     <h1 class="mb-4">Bought Items</h1>
 
+    <!-- Search and Filter Form -->
     <form method="GET" action="{% url 'bought' %}" class="mb-4" id="search-form">
-        <div class="row">
-            <div class="col-md-4">
-                <input type="text" name="search" id="search-box" class="form-control" placeholder="Search by item name" value="{{ query }}">
+        <div class="row g-2">
+            <div class="col-12 col-md-4">
+                <input type="text" name="search" id="search-box" class="form-control" 
+                       placeholder="Search by item name" value="{{ query }}">
             </div>
-            <div class="col-md-3">
-                <input type="date" name="start_date" id="start-date" class="form-control" value="{{ start_date }}">
+            <div class="col-6 col-md-3">
+                <input type="date" name="start_date" id="start-date" 
+                       class="form-control" value="{{ start_date }}">
             </div>
-            <div class="col-md-3">
-                <input type="date" name="end_date" id="end-date" class="form-control" value="{{ end_date }}">
+            <div class="col-6 col-md-3">
+                <input type="date" name="end_date" id="end-date" 
+                       class="form-control" value="{{ end_date }}">
             </div>
-            <div class="col-md-2">
-                <a href="{% url 'download_bought_excel' %}" class="btn btn-success">Download Excel</a>
+            <div class="col-12 col-md-2">
+                <a href="{% url 'download_bought_excel' %}" 
+                   class="btn btn-success w-100 mt-md-0 mt-2">
+                    Download Excel
+                </a>
             </div>
         </div>
     </form>
 
-    <a href="{% url 'add_bought_item' %}" class="btn btn-primary mb-3">Add Bought Item</a>
+    <!-- Add Button -->
+    <a href="{% url 'add_bought_item' %}" class="btn btn-primary mb-3 w-100 w-md-auto">Add Bought Item</a>
 
-    <table class="table table-bordered table-hover shadow-sm">
-        <thead class="table-dark">
-            <tr>
-                <th>Item</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Total Price</th>
-                <th>Date of Buying</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="bought-items-body">
-            {% for item in items %}
+    <!-- Responsive Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover shadow-sm">
+            <thead class="table-dark">
                 <tr>
-                    <td>{{ item.item }}</td>
-                    <td>{{ item.price }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td class="total-price">{{ item.total_price }}</td>
-                    <td>{{ item.date_of_buying }}</td>
-                    <td>
-                        <a href="{% url 'edit_bought_item' item.id %}" class="btn btn-warning btn-sm">Edit</a>
-                        <a href="{% url 'delete_bought_item' item.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this item?')">Delete</a>
-                    </td>
+                    <th>Item</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total Price</th>
+                    <th>Date of Buying</th>
+                    <th>Actions</th>
                 </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center">No items found</td>
+            </thead>
+            <tbody id="bought-items-body">
+                {% for item in items %}
+                    <tr>
+                        <td data-label="Item">{{ item.item }}</td>
+                        <td data-label="Price">{{ item.price }}</td>
+                        <td data-label="Quantity">{{ item.quantity }}</td>
+                        <td data-label="Total Price" class="total-price">{{ item.total_price }}</td>
+                        <td data-label="Date">{{ item.date_of_buying }}</td>
+                        <td data-label="Actions">
+                            <div class="d-flex gap-1">
+                                <a href="{% url 'edit_bought_item' item.id %}" 
+                                   class="btn btn-warning btn-sm">Edit</a>
+                                <a href="{% url 'delete_bought_item' item.id %}" 
+                                   class="btn btn-danger btn-sm" 
+                                   onclick="return confirm('Are you sure?')">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No items found</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr class="table-info">
+                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                    <td id="sum-total-price"><strong>{{ total_bought|floatformat:2 }}</strong></td>
+                    <td colspan="2"></td>
                 </tr>
-            {% endfor %}
-        </tbody>
-        <tfoot>
-            <tr class="table-info">
-                <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                <td id="sum-total-price"><strong>{{ total_bought|floatformat:2 }}</strong></td>
-                <td colspan="2"></td>
-            </tr>
-        </tfoot>
-    </table>
+            </tfoot>
+        </table>
+    </div>
+
+    <style>
+        @media (max-width: 767.98px) {
+            /* Table styling */
+            .table thead {
+                display: none;
+            }
+            
+            .table tbody tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 2px solid #dee2e6;
+            }
+            
+            .table tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border: none;
+            }
+            
+            .table tbody td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                margin-right: 1rem;
+                flex: 0 0 40%;
+            }
+            
+            .table tbody td[colspan] {
+                display: table-cell;
+                text-align: center;
+            }
+            
+            /* Action buttons */
+            .d-flex.gap-1 {
+                justify-content: flex-end;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+    </style>
 </div>
 
 <script>
+    // Keep existing JavaScript unchanged
     document.addEventListener('DOMContentLoaded', function() {
         const searchBox = document.getElementById('search-box');
         const startDate = document.getElementById('start-date');
@@ -81,7 +143,7 @@
             })
             .then(response => response.json())
             .then(data => {
-                itemsBody.innerHTML = "";  // Clear table before adding new data
+                itemsBody.innerHTML = "";
                 let totalSum = 0;
 
                 if (data.items.length > 0) {
@@ -91,14 +153,18 @@
 
                         let row = `
                             <tr>
-                                <td>${item.item}</td>
-                                <td>${item.price}</td>
-                                <td>${item.quantity}</td>
-                                <td class="total-price">${itemTotal.toFixed(2)}</td>
-                                <td>${item.date_of_buying}</td>
-                                <td>
-                                    <a href="/edit_bought_item/${item.id}" class="btn btn-warning btn-sm">Edit</a>
-                                    <a href="/delete_bought_item/${item.id}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this item?')">Delete</a>
+                                <td data-label="Item">${item.item}</td>
+                                <td data-label="Price">${item.price}</td>
+                                <td data-label="Quantity">${item.quantity}</td>
+                                <td data-label="Total Price" class="total-price">${itemTotal.toFixed(2)}</td>
+                                <td data-label="Date">${item.date_of_buying}</td>
+                                <td data-label="Actions">
+                                    <div class="d-flex gap-1">
+                                        <a href="/edit_bought_item/${item.id}" class="btn btn-warning btn-sm">Edit</a>
+                                        <a href="/delete_bought_item/${item.id}" 
+                                           class="btn btn-danger btn-sm" 
+                                           onclick="return confirm('Are you sure?')">Delete</a>
+                                    </div>
                                 </td>
                             </tr>`;
                         itemsBody.innerHTML += row;
@@ -107,13 +173,11 @@
                     itemsBody.innerHTML = `<tr><td colspan="6" class="text-center">No items found</td></tr>`;
                 }
 
-                // Update total sum
                 totalPriceBox.innerHTML = `<strong>${totalSum.toFixed(2)}</strong>`;
             })
-            .catch(error => console.error("Error fetching items:", error));
+            .catch(error => console.error("Error:", error));
         }
 
-        // Trigger search on input changes
         searchBox.addEventListener('input', fetchResults);
         startDate.addEventListener('change', fetchResults);
         endDate.addEventListener('change', fetchResults);

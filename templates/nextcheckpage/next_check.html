@@ -1,36 +1,83 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Today's check dates</h1>
+<div class="container">
+    <h1 class="mb-4">Today's Check Dates</h1>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Owner</th>
-            <th>Phone Number</th>
-            <th>Pet Name</th>
-            <th>Visit Date</th>
-            <th>Next Check Date</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for visit in visits %}
-            <tr>
-                <td>{{ visit.owner.name }}</td>
-                <td>{{ visit.owner.phone_number }}</td> <!-- Displaying phone number -->
-                <td>{{ visit.pet_name }}</td>
-                <td>{{ visit.visit_date }}</td>
-                <td>{{ visit.next_check_date }}</td>
-                <td>
-                    <a href="{% url 'view_visit' visit.id %}" class="btn btn-info">View Visit</a>
-                </td>
-            </tr>
-        {% empty %}
-            <tr>
-                <td colspan="6">No visits with today's next check date.</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <div class="table-responsive">
+        <table class="table">
+            <thead class="d-none d-md-table-header-group">
+                <tr>
+                    <th>Owner</th>
+                    <th>Phone</th>
+                    <th>Pet</th>
+                    <th>Visit Date</th>
+                    <th>Next Check</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for visit in visits %}
+                    <tr>
+                        <td data-label="Owner">{{ visit.owner.name }}</td>
+                        <td data-label="Phone">{{ visit.owner.phone_number }}</td>
+                        <td data-label="Pet">{{ visit.pet_name }}</td>
+                        <td data-label="Visit Date">{{ visit.visit_date }}</td>
+                        <td data-label="Next Check">{{ visit.next_check_date }}</td>
+                        <td data-label="Actions">
+                            <a href="{% url 'view_visit' visit.id %}" class="btn btn-info btn-sm">View</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No visits with today's next check date.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <style>
+        @media (max-width: 767.98px) {
+            /* Mobile table styling */
+            .table tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid #dee2e6;
+                border-radius: 0.25rem;
+            }
+            
+            .table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border: none;
+                padding: 0.75rem;
+            }
+            
+            .table td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                margin-right: 1rem;
+                flex: 0 0 40%;
+            }
+            
+            .table td[colspan] {
+                display: table-cell;
+                text-align: center;
+            }
+            
+            .btn-sm {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</div>
 {% endblock %}

@@ -4,44 +4,94 @@
 <div class="container">
     <h1>Sold Items (Today)</h1>
 
-    <!-- Table of Sold Items -->
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Discount</th>
-                <th>Total Price</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for invoice in invoices %}
+    <!-- Responsive table container -->
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
                 <tr>
-                    <td>{{ invoice.item.name }}</td>
-                    <td>{{ invoice.category }}</td>
-                    <td>{{ invoice.price }}</td>
-                    <td>{{ invoice.quantity }}</td>
-                    <td>{{ invoice.discount }}</td>
-                    <td>{{ invoice.total_price }}</td>
-                    <td>{{ invoice.date }}</td>
+                    <th>Item</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Discount</th>
+                    <th>Total Price</th>
+                    <th>Date</th>
                 </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="7" class="text-center">No invoices found for today.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for invoice in invoices %}
+                    <tr>
+                        <td data-label="Item">{{ invoice.item.name }}</td>
+                        <td data-label="Category">{{ invoice.category }}</td>
+                        <td data-label="Price">{{ invoice.price }}</td>
+                        <td data-label="Quantity">{{ invoice.quantity }}</td>
+                        <td data-label="Discount">{{ invoice.discount }}</td>
+                        <td data-label="Total Price">{{ invoice.total_price }}</td>
+                        <td data-label="Date">{{ invoice.date }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No invoices found for today.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <!-- Total Price box below the table -->
-    <div class="row">
-        <div class="col-md-6 offset-md-6">
-            <h4>Total Price: <strong>{{ total_price|floatformat:2 }}</strong></h4>
+    <!-- Total Price -->
+    <div class="row mt-3">
+        <div class="col-12 col-md-6 offset-md-6 text-md-right">
+            <h4 class="mb-0">Total Price: <strong>{{ total_price|floatformat:2 }}</strong></h4>
         </div>
     </div>
 
+    <style>
+        @media (max-width: 767.98px) {
+            /* Hide table headers */
+            .table thead {
+                display: none;
+            }
+            
+            /* Make table cells stack vertically */
+            .table tbody tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 2px solid #dee2e6;
+                border-radius: 0.25rem;
+            }
+            
+            .table tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border: none;
+            }
+            
+            /* Add data-label pseudo-elements */
+            .table tbody td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                margin-right: 1rem;
+                flex: 0 0 40%;
+            }
+            
+            /* Make empty state full width */
+            .table tbody td[colspan] {
+                display: table-cell;
+                text-align: center;
+            }
+            
+            /* Adjust total price alignment */
+            .text-md-right {
+                text-align: center !important;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+    </style>
 </div>
 {% endblock %}

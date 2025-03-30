@@ -5,139 +5,404 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}HP Clinic{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     {% load static %}
 
     <style>
-        /* Ensure the body and html take up full height */
+        /* Base styles */
         html, body {
             height: 100%;
+            overflow-x: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Use flexbox to make the body take up available space */
         .content-wrapper {
             display: flex;
             flex-direction: column;
-            min-height: 100%;
+            min-height: 100vh;
+            padding-left: 15px;
+            padding-right: 15px;
         }
 
-        /* Push footer to the bottom */
-        .footer {
-            margin-top: auto;
-        }
-
-        .footer p span {
-            margin-left: 30px; /* Adjust space between name and number */
-        }
-
-        /* Style the logo */
+        /* Enhanced logo styling */
         .logo-container {
             position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 10;
+            top: 15px;
+            left: 15px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .logo-container:hover {
+            transform: translateY(-2px);
         }
 
         .logo-container img {
-            height: 60px; /* Adjust the logo size */
+            height: 50px;
+            width: auto;
         }
 
-        /* Style for navbar */
+        /* Modern navbar styling with scroll */
         .navbar {
-            background-color: #343a40 !important;
-            max-height: 100vh; /* Ensure navbar takes full vertical height */
-            overflow-y: auto;  /* Enable vertical scrolling */
+            background: linear-gradient(160deg, #2c3e50, #3498db);
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            right: -280px;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 999;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar.active {
+            right: 0;
+        }
+
+        .navbar-header {
+            padding: 25px;
+            border-bottom: 2px solid rgba(255,255,255,0.15);
+            flex-shrink: 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: white !important;
+            text-align: center;
+            display: block;
+            margin: 0;
+        }
+
+        .nav-scrollable {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px 20px;
+        }
+
+        /* Custom scrollbar styling */
+        .nav-scrollable::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .nav-scrollable::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+            border-radius: 4px;
+        }
+
+        .nav-scrollable::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+        }
+
+        .nav-scrollable::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.4);
         }
 
         .nav-item {
-            margin-top: 10px;
+            margin: 10px 0;
+            transition: all 0.3s ease;
         }
 
         .nav-link {
-            color: white;
+            color: white !important;
+            padding: 15px 25px !important;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: rgba(255,255,255,0.05);
         }
 
         .nav-link:hover {
-            color: #007bff;
+            background: rgba(255,255,255,0.15);
+            transform: translateX(8px);
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
         }
 
-        /* Style for the dropdown menu */
-        .nav-item.dropdown .dropdown-menu {
-            background-color: #343a40; /* Match the sidebar background color */
+        .nav-link i {
+            width: 25px;
+            font-size: 1.1rem;
+            text-align: center;
         }
 
-        /* Style for the dropdown items when hovered */
-        .nav-item.dropdown .dropdown-menu .nav-link {
-            color: white; /* Ensure the text color matches the sidebar */
+        /* Enhanced dropdown menu */
+        .dropdown-menu {
+            background: rgba(0,0,0,0.25);
+            border: none;
+            margin-left: 35px;
+            margin-top: 5px;
+            backdrop-filter: blur(5px);
+            position: static !important;
+            transform: none !important;
         }
 
-        .nav-item.dropdown .dropdown-menu .nav-link:hover {
-            color: #007bff; /* Highlight color for hover effect */
+        .dropdown-item {
+            color: white !important;
+            padding: 12px 25px !important;
+            transition: all 0.2s ease;
         }
 
-        /* Ensure footer content is centered */
+        .dropdown-item:hover {
+            background: rgba(255,255,255,0.1) !important;
+            padding-left: 30px !important;
+        }
+
+        /* Modern menu toggle */
+        .menu-toggle {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            z-index: 1001;
+            color: white;
+            font-size: 26px;
+            cursor: pointer;
+            background: rgba(52, 58, 64, 0.9);
+            padding: 12px 18px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .menu-toggle:hover {
+            background: #2c3e50;
+            transform: rotate(180deg);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Main content area */
+        .main-content {
+            margin-top: 100px;
+            width: 100%;
+            transition: 0.3s;
+            padding: 25px;
+        }
+
+        /* Enhanced footer */
+        .footer {
+            margin-top: auto;
+            padding: 2rem;
+            background: rgba(52, 58, 64, 0.97);
+            border-top: 2px solid rgba(255,255,255,0.15);
+        }
+
         .footer p {
             margin: 0;
+            color: #e0e0e0;
+            font-size: 0.95rem;
+        }
+
+        .footer p span {
+            display: inline-block;
+            margin-left: 20px;
+            color: #95a5a6;
+        }
+
+        @media (min-width: 992px) {
+            .navbar {
+                right: 0;
+                width: 280px;
+            }
+            .main-content {
+                padding-right: 310px;
+            }
+            .menu-toggle {
+                display: none;
+            }
+            .logo-container img {
+                height: 60px;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .footer p span {
+                display: block;
+                margin-left: 0;
+                margin-top: 10px;
+            }
+            .nav-link {
+                font-size: 0.95rem;
+                padding: 12px 20px !important;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="content-wrapper">
-    <!-- Logo at the top left with link to the home page -->
+    <!-- Modern Menu Toggle -->
+    <div class="menu-toggle" onclick="toggleNav()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Enhanced Logo -->
     <div class="logo-container">
         <a href="{% url 'home' %}">
-            <img src="{% static 'images/logo.jpg' %}" alt="HP Clinic Logo">
+            <img src="{% static 'images/logo.jpg' %}" alt="HP Clinic Logo" class="hover-scale">
         </a>
     </div>
 
-    <!-- Navigation Bar on the right -->
-    <nav class="navbar navbar-dark bg-dark position-fixed top-0 end-0 vh-100 d-flex flex-column align-items-end p-3">
-        <div class="w-100 text-end">
-            <a class="navbar-brand" href="{% url 'home' %}">HP Clinic</a>
-            <ul class="nav flex-column mt-3">
-                <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'prices' %}">المخزون</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'create_invoice' %}">انشاء فاتورة</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'sold_today_items' %}">مبيعات اليوم</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'bought_today' %}">مشتريات اليوم</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'owners' %}">اضافة عميل</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'visits_list' %}">كشف جديد</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'birds_list' %}">حجز الدواجن</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'next_check' %}">متوقع زيارة اليوم</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'userhours' %}">ساعات المستخدم</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
-
-                <!-- Admin Dropdown -->
-                <li class="nav-item dropdown mt-3">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Admin
+    <!-- Modern Navigation with Scroll -->
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-clinic-medical"></i> HP Clinic
+            </a>
+        </div>
+        
+        <div class="nav-scrollable">
+            <ul class="nav flex-column px-2">
+                <!-- Navigation Items -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}">
+                        <i class="fas fa-home"></i>Home
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li class="nav-link"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>                        
-                        <li><a class="nav-link" href="{% url 'pricesedit' %}">تعديل المخزون</a></li>
-                        <li><a class="nav-link" href="{% url 'sold_items' %}">المبيعات</a></li>
-                        <li><a class="nav-link" href="{% url 'bought' %}">المشتريات</a></li>
-                        <li><a class="nav-link" href="{% url 'add_user' %}">اضافة حساب</a></li>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'prices' %}">
+                        <i class="fas fa-box-open"></i>المخزون
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'create_invoice' %}">
+                        <i class="fas fa-receipt"></i>انشاء فاتورة
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'sold_today_items' %}">
+                        <i class="fas fa-chart-line"></i>مبيعات اليوم
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'bought_today' %}">
+                        <i class="fas fa-shopping-cart"></i>مشتريات اليوم
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'owners' %}">
+                        <i class="fas fa-user-plus"></i>اضافة عميل
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'visits_list' %}">
+                        <i class="fas fa-file-medical"></i>كشف جديد
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'birds_list' %}">
+                        <i class="fas fa-dove"></i>حجز الدواجن
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'next_check' %}">
+                        <i class="fas fa-calendar-check"></i>متوقع زيارة اليوم
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'userhours' %}">
+                        <i class="fas fa-user-clock"></i>ساعات المستخدم
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">
+                        <i class="fas fa-sign-out-alt"></i>Logout
+                    </a>
+                </li>
+
+                <!-- Enhanced Admin Dropdown -->
+                <li class="nav-item dropdown mt-3">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-shield"></i>Admin
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'dashboard' %}">
+                            <i class="fas fa-tachometer-alt"></i>Dashboard
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'pricesedit' %}">
+                            <i class="fas fa-edit"></i>تعديل المخزون
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'sold_items' %}">
+                            <i class="fas fa-chart-bar"></i>المبيعات
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'bought' %}">
+                            <i class="fas fa-truck"></i>المشتريات
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'add_user' %}">
+                            <i class="fas fa-user-plus"></i>اضافة حساب
+                        </a></li>
                     </ul>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <!-- Page Content -->
-    <div class="container mt-4">
-        {% block content %}
-        {% endblock %}
-    </div>
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container mt-4">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
 
-    <!-- Signature Footer -->
+    <!-- Modern Footer -->
     <footer class="footer py-3 text-center bg-dark text-white">
         <p>&copy; 2025 HP Clinic. All rights reserved.</p>
-        <p>Designed by Mohammed Essam <span class="ml-2">Contact Number: 01272776895</span></p>
+        <p>Designed by Mohammed Essam <span>Contact Number: 01272776895</span></p>
     </footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Enhanced toggle function
+    function toggleNav() {
+        const navbar = document.querySelector('.navbar');
+        const toggleBtn = document.querySelector('.menu-toggle');
+        navbar.classList.toggle('active');
+        toggleBtn.classList.toggle('active');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const navbar = document.querySelector('.navbar');
+        const toggleBtn = document.querySelector('.menu-toggle');
+        const isDropdown = event.target.closest('.dropdown-toggle');
+        
+        if (!navbar.contains(event.target) && 
+            !toggleBtn.contains(event.target) &&
+            !isDropdown) {
+            navbar.classList.remove('active');
+            toggleBtn.classList.remove('active');
+        }
+    });
+
+    // Keep navbar open when clicking dropdown items
+    document.querySelectorAll('.dropdown-item, .dropdown-toggle').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (window.innerWidth < 992) {
+                document.querySelector('.navbar').classList.add('active');
+            }
+        });
+    });
+
+    // Close menu on regular nav links (mobile)
+    document.querySelectorAll('.nav-link:not(.dropdown-toggle)').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth < 992) {
+                document.querySelector('.navbar').classList.remove('active');
+                document.querySelector('.menu-toggle').classList.remove('active');
+            }
+        });
+    });
+</script>
 </body>
 </html>

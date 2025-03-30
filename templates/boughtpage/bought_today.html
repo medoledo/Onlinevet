@@ -4,40 +4,98 @@
 <div class="container mt-4">
     <h1 class="mb-4">Bought Items (Today)</h1>
 
-    <a href="{% url 'add_bought_item' %}" class="btn btn-primary mb-3">Add Bought Item</a>
+    <a href="{% url 'add_bought_item' %}" class="btn btn-primary mb-3 w-100 w-md-auto">Add Bought Item</a>
 
-    <table class="table table-bordered table-hover shadow-sm">
-        <thead class="table-dark">
-            <tr>
-                <th>Item</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Total Price</th>
-                <th>Date of Buying</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in items %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover shadow-sm">
+            <thead class="table-dark">
                 <tr>
-                    <td>{{ item.item }}</td>
-                    <td>{{ item.price }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>{{ item.total_price }}</td>
-                    <td>{{ item.date_of_buying }}</td>
+                    <th>Item</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total Price</th>
+                    <th>Date of Buying</th>
                 </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center">No items bought today</td>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                    <tr>
+                        <td data-label="Item">{{ item.item }}</td>
+                        <td data-label="Price">{{ item.price }}</td>
+                        <td data-label="Quantity">{{ item.quantity }}</td>
+                        <td data-label="Total Price">{{ item.total_price }}</td>
+                        <td data-label="Date">{{ item.date_of_buying }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No items bought today</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr class="table-info">
+                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                    <td><strong>{{ total_bought|floatformat:2 }}</strong></td>
+                    <td></td>
                 </tr>
-            {% endfor %}
-        </tbody>
-        <tfoot>
-            <tr class="table-info">
-                <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                <td><strong>{{ total_bought|floatformat:2 }}</strong></td>
-                <td></td>
-            </tr>
-        </tfoot>
-    </table>
+            </tfoot>
+        </table>
+    </div>
+
+    <style>
+        @media (max-width: 767.98px) {
+            /* Mobile table styling */
+            .table thead {
+                display: none;
+            }
+            
+            .table tbody tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 2px solid #dee2e6;
+                border-radius: 0.25rem;
+            }
+            
+            .table tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border: none;
+                padding: 0.75rem;
+            }
+            
+            .table tbody td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                margin-right: 1rem;
+                flex: 0 0 40%;
+            }
+            
+            .table tbody td[colspan] {
+                display: table-cell;
+                text-align: center;
+            }
+            
+            /* Footer styling */
+            .table-info td {
+                display: block;
+                text-align: center !important;
+            }
+            
+            .table-info td:first-child {
+                padding-bottom: 0;
+            }
+            
+            .table-info td:nth-child(4) {
+                padding-top: 0;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+    </style>
 </div>
 {% endblock %}

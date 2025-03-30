@@ -4,18 +4,18 @@
 <div class="container">
     <h1>Sold Items</h1>
 
-    <!-- Filter Form with Date and Category -->
+    <!-- Filter Form -->
     <form method="get">
         <div class="row mb-3">
-            <div class="col-md-3">
+            <div class="col-12 col-md-3 mb-2">
                 <label for="start_date">Start Date:</label>
                 <input type="date" name="start_date" id="start_date" value="{{ start_date }}" class="form-control">
             </div>
-            <div class="col-md-3">
+            <div class="col-12 col-md-3 mb-2">
                 <label for="end_date">End Date:</label>
                 <input type="date" name="end_date" id="end_date" value="{{ end_date }}" class="form-control">
             </div>
-            <div class="col-md-3">
+            <div class="col-12 col-md-3 mb-2">
                 <label for="category">Category:</label>
                 <select name="category" id="category" class="form-control">
                     <option value="">All Categories</option>
@@ -24,68 +24,125 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary">Filter</button>
+            <div class="col-12 col-md-3 d-flex align-items-end mb-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
             </div>
         </div>
     </form>
 
-    <!-- Table of Sold Items -->
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Discount</th>
-                <th>Total Price</th>
-                <th>Date</th>
-                <th>Action</th> <!-- New column for delete button -->
-            </tr>
-        </thead>
-        <tbody>
-            {% for invoice in invoices %}
+    <!-- Responsive Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
                 <tr>
-                    <td>
-                        {% if invoice.item %}
-                            {{ invoice.item.name }}
-                        {% else %}
-                            Deleted Item
-                        {% endif %}
-                    </td>
-                    <td>{{ invoice.category }}</td>
-                    <td>{{ invoice.price }}</td>
-                    <td>{{ invoice.quantity }}</td>
-                    <td>{{ invoice.discount }}</td>
-                    <td>{{ invoice.total_price }}</td>
-                    <td>{{ invoice.date }}</td>
-                    <td>
-                        <form action="{% url 'delete_invoice' invoice.id %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>
-                    </td>
+                    <th>Item</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Discount</th>
+                    <th>Total Price</th>
+                    <th>Date</th>
+                    <th>Action</th>
                 </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="8" class="text-center">No invoices found.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for invoice in invoices %}
+                    <tr>
+                        <td data-label="Item">
+                            {% if invoice.item %}
+                                {{ invoice.item.name }}
+                            {% else %}
+                                Deleted Item
+                            {% endif %}
+                        </td>
+                        <td data-label="Category">{{ invoice.category }}</td>
+                        <td data-label="Price">{{ invoice.price }}</td>
+                        <td data-label="Quantity">{{ invoice.quantity }}</td>
+                        <td data-label="Discount">{{ invoice.discount }}</td>
+                        <td data-label="Total Price">{{ invoice.total_price }}</td>
+                        <td data-label="Date">{{ invoice.date }}</td>
+                        <td data-label="Action">
+                            <form action="{% url 'delete_invoice' invoice.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">No invoices found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <!-- Total Price box below the table -->
-    <div class="row">
-        <div class="col-md-6 offset-md-6">
-            <h4>Total Price: <strong>{{ total_price|floatformat:2 }}</strong></h4>
+    <!-- Total Price -->
+    <div class="row mt-3">
+        <div class="col-12 col-md-6 offset-md-6 text-md-end">
+            <h4 class="mb-3">Total Price: <strong>{{ total_price|floatformat:2 }}</strong></h4>
         </div>
     </div>
 
-    <!-- Download Button for Excel -->
-    <div class="text-end mb-3" style="padding-right: 100px;">
-        <a href="{% url 'download_sold_items_excel' %}?start_date={{ start_date }}&end_date={{ end_date }}&category={{ category_id }}" class="btn btn-secondary">Download as Excel</a>
+    <!-- Download Button -->
+    <div class="text-center text-md-end mb-3">
+        <a href="{% url 'download_sold_items_excel' %}?start_date={{ start_date }}&end_date={{ end_date }}&category={{ category_id }}" 
+           class="btn btn-secondary">
+            Download as Excel
+        </a>
     </div>
 
+    <style>
+        @media (max-width: 767.98px) {
+            /* Table styling */
+            .table thead {
+                display: none;
+            }
+            
+            .table tbody tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 2px solid #dee2e6;
+                border-radius: 0.25rem;
+            }
+            
+            .table tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border: none;
+                padding: 0.75rem;
+            }
+            
+            .table tbody td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                margin-right: 1rem;
+                flex: 0 0 40%;
+            }
+            
+            .table tbody td[colspan] {
+                display: table-cell;
+                text-align: center;
+            }
+            
+            /* Action column styling */
+            td[data-label="Action"] form {
+                justify-content: flex-end;
+            }
+            
+            /* Download button */
+            .text-md-end {
+                text-align: center !important;
+                padding-right: 0 !important;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+    </style>
 </div>
 {% endblock %}

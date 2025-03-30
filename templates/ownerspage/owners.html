@@ -2,114 +2,162 @@
 {% load static %}
 
 {% block content %}
-<h1>Owners List</h1>
+<div class="container">
+    <h1 class="mb-4">Owners List</h1>
 
-<!-- Search Form -->
-<form method="GET" class="mb-4">
-    <div class="d-flex">
-        <input type="text" name="search_name" placeholder="Search by Name" value="{{ request.GET.search_name }}" class="form-control mr-2">
-        <input type="text" name="search_number" placeholder="Search by Phone Number" value="{{ request.GET.search_number }}" class="form-control mr-2">
-        <button type="submit" class="btn btn-info">Search</button>
+    <!-- Search Form -->
+    <form method="GET" class="mb-4">
+        <div class="row g-2">
+            <div class="col-12 col-md-4">
+                <input type="text" name="search_name" placeholder="Search by Name" 
+                       value="{{ request.GET.search_name }}" class="form-control">
+            </div>
+            <div class="col-12 col-md-4">
+                <input type="text" name="search_number" placeholder="Search by Phone Number" 
+                       value="{{ request.GET.search_number }}" class="form-control">
+            </div>
+            <div class="col-12 col-md-4">
+                <button type="submit" class="btn btn-info w-100">Search</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Action Buttons -->
+    <div class="d-flex flex-column flex-md-row gap-2 mb-4">
+        <a href="{% url 'add_owner' %}" class="btn btn-primary">Add Owner</a>
+        <a href="{% url 'add_pet_type' %}" class="btn btn-success">Add Pet Type</a>
     </div>
-</form>
 
-<!-- Add Owner and Add Pet Type Buttons -->
-<a href="{% url 'add_owner' %}" class="btn btn-primary">Add Owner</a>
-<a href="{% url 'add_pet_type' %}" class="btn btn-success">Add Pet Type</a>
+    <!-- Responsive Table -->
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Pet Name</th>
+                    <th>Pet Type</th>
+                    <th>Sex</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for owner in owners %}
+                    <tr>
+                        <td data-label="Name">{{ owner.name }}</td>
+                        <td data-label="Phone">{{ owner.phone_number }}</td>
+                        <td data-label="Pet Name">{{ owner.pet_name }}</td>
+                        <td data-label="Pet Type">{{ owner.pet_type }}</td>
+                        <td data-label="Sex">{{ owner.sex }}</td>
+                        <td data-label="Actions">
+                            <a href="{% url 'edit_owner' owner.id %}" class="btn btn-warning btn-sm">Edit</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No owners found</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-<!-- Owners Table -->
-<table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Phone Number</th>
-            <th>Pet Name</th>
-            <th>Pet Type</th>
-            <th>Sex</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for owner in owners %}
-            <tr>
-                <td>{{ owner.name }}</td>
-                <td>{{ owner.phone_number }}</td>
-                <td>{{ owner.pet_name }}</td>
-                <td>{{ owner.pet_type }}</td>
-                <td>{{ owner.sex }}</td>
-                <td>
-                    <a href="{% url 'edit_owner' owner.id %}" class="btn btn-warning">Edit</a>
-                </td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <!-- Download Button -->
+    <div class="text-center text-md-end my-3">
+        <a href="{% url 'download_owners' %}?search_name={{ request.GET.search_name }}&search_number={{ request.GET.search_number }}" 
+           class="btn btn-secondary">
+            Download Excel
+        </a>
+    </div>
 
-<!-- Download Button -->
-<div class="text-end mb-3">
-    <a href="{% url 'download_owners' %}?search_name={{ request.GET.search_name }}&search_number={{ request.GET.search_number }}" class="btn btn-secondary">Download Owners as Excel</a>
+    <style>
+        @media (max-width: 767.98px) {
+            /* Mobile table styling */
+            .table thead {
+                display: none;
+            }
+            
+            .table tbody tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid #dee2e6;
+                border-radius: 0.25rem;
+            }
+            
+            .table tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border: none;
+                padding: 0.75rem;
+            }
+            
+            .table tbody td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                margin-right: 1rem;
+                flex: 0 0 40%;
+            }
+            
+            .table tbody td[colspan] {
+                display: table-cell;
+                text-align: center;
+            }
+            
+            /* Adjust button sizing */
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+
+        /* Maintain original desktop styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            text-decoration: none;
+            color: white;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: opacity 0.3s;
+        }
+
+        .btn-primary { background-color: #007bff; }
+        .btn-warning { background-color: #ffc107; }
+        .btn-success { background-color: #28a745; }
+        .btn-info { background-color: #17a2b8; }
+        .btn-secondary { background-color: #6c757d; }
+
+        .btn:hover {
+            opacity: 0.8;
+            color: white;
+        }
+    </style>
 </div>
-
-<style>
-    /* Table Styling */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    th, td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-    }
-
-    th {
-        background-color: #f2f2f2;
-        color: #333;
-    }
-
-    tr:hover {
-        background-color: #f1f1f1;
-    }
-
-    /* Button Styling */
-    .btn {
-        padding: 8px 16px;
-        text-decoration: none;
-        color: white;
-        border-radius: 5px;
-        font-weight: bold;
-    }
-
-    .btn-primary {
-        background-color: #007bff;
-        border: none;
-    }
-
-    .btn-warning {
-        background-color: #ffc107;
-        border: none;
-    }
-
-    .btn-success {
-        background-color: #28a745;
-        border: none;
-    }
-
-    .btn-info {
-        background-color: #17a2b8;
-        border: none;
-    }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        border: none;
-    }
-
-    .btn:hover {
-        opacity: 0.8;
-    }
-</style>
-
 {% endblock %}
