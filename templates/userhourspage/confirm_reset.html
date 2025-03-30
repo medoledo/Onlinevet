@@ -1,0 +1,12 @@
+<!-- confirm_reset.html -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h1>Are you sure you want to delete all user hours?</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete All</button>
+        <a href="{% url 'userhours' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

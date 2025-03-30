@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="text-center">Visit Details</h1>
+
+<div class="container">
+    <table class="table table-bordered">
+        <tr><th>Owner</th><td>{{ visit.owner.name }}</td></tr>
+        <tr><th>Phone Number</th><td>{{ visit.owner.phone_number }}</td></tr>
+        <tr><th>Pet Name</th><td>{{ visit.pet_name }}</td></tr>
+        <tr><th>Pet Type</th><td>{{ visit.pet_type }}</td></tr>
+        <tr><th>Sex</th><td>{{ visit.sex }}</td></tr>
+        <tr><th>Age</th><td>{{ visit.age }}</td></tr>
+        <tr><th>Weight (kg)</th><td>{{ visit.weight_in_kg }}</td></tr>
+        <tr><th>Diagnosis</th><td class="expand-text">{{ visit.diagnosis }}</td></tr>
+        <tr><th>Treatment</th><td class="expand-text">{{ visit.treatment }}</td></tr>
+        <tr><th>Visit Date</th><td>{{ visit.visit_date }}</td></tr>
+        <tr><th>Next Check Date</th><td>{{ visit.next_check_date }}</td></tr>
+    </table>
+    
+    <div class="text-center">
+        <a href="{% url 'visits_list' %}" class="btn btn-secondary">Back to Visits List</a>
+        <a href="{% url 'edit_visit' visit.id %}" class="btn btn-primary">Edit Visit</a>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .table th {
+        background-color: #007bff;
+        color: white;
+        text-align: left;
+        padding: 10px;
+        width: 25%;
+    }
+
+    .table td {
+        padding: 10px;
+        vertical-align: top; /* Align text to the top */
+        word-wrap: break-word;
+        max-width: 500px; /* Prevent super long single lines */
+    }
+
+    .expand-text {
+        white-space: pre-wrap; /* Allows text to wrap properly */
+        word-break: break-word;
+    }
+
+    .btn {
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin: 5px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+        color: white;
+    }
+
+    .btn:hover {
+        opacity: 0.8;
+    }
+</style>
+
+{% endblock %}

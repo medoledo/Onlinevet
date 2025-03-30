@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Done Birds</h1>
+
+    <!-- Done Birds List Table -->
+    <table class="table table-bordered table-hover shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Phone Number</th>
+                <th>Bird Type</th>
+                <th>Quantity</th>
+                <th>Price/one</th>
+                <th>Total</th>
+                <th>Paid Money</th>
+                <th>Remaining to Pay</th>
+                <th>Date of Reservation</th>
+                <th>Done Date</th>  <!-- New column for done date -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for bird in done_birds %}
+                <tr>
+                    <td>{{ bird.name }}</td>
+                    <td>{{ bird.phone_number }}</td>
+                    <td>{{ bird.bird_type.bird_type }}</td>
+                    <td>{{ bird.quantity }}</td>
+                    <td>{{ bird.price }}</td>
+                    <td class="total">{{ bird.total }}</td> <!-- Add the total class for calculation -->
+                    <td>{{ bird.payed_money }}</td>
+                    <td>{{ bird.remaining_to_pay }}</td>
+                    <td>{{ bird.date_of_payment }}</td>
+                    <td>{{ bird.done_date }}</td>  <!-- Display the done date -->
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="10" class="text-center">No done birds found</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Total Sum Box -->
+    <div class="mt-3" style="padding-bottom: 150px;">
+        <label class="form-label">Total Money</label>
+        <input type="text" id="totalSum" class="form-control" readonly>
+    </div>
+</div>
+
+<style>
+    table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #f8f9fa;
+        color: #333;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .form-control {
+        width: 100%;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let totalSumField = document.getElementById("totalSum");
+
+        // Function to calculate the total sum of the "Total" column
+        function calculateTotalSum() {
+            let totalSum = 0;
+
+            // Iterate over all the total fields in the table
+            document.querySelectorAll('.total').forEach(function(cell) {
+                totalSum += parseFloat(cell.textContent) || 0;
+            });
+
+            // Update the total sum field
+            totalSumField.value = totalSum.toFixed(2);
+        }
+
+        // Call the function to calculate the total sum initially
+        calculateTotalSum();
+    });
+</script>
+
+{% endblock %}

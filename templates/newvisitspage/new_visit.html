@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>New Visit</h1>
+<a href="{% url 'add_visit' %}" class="btn btn-primary">Add New Visit</a>
+
+<!-- Search Filters Form -->
+<div class="mb-4">
+    <form method="GET" class="form-inline">
+        <!-- Search by Owner Name -->
+        <div class="form-group mr-3">
+            <label for="owner_name" class="mr-2">Owner Name:</label>
+            <input type="text" id="owner_name" name="owner_name" class="form-control" placeholder="Search by name" value="{{ request.GET.owner_name }}">
+        </div>
+
+        <!-- Search by Phone Number -->
+        <div class="form-group mr-3">
+            <label for="phone_number" class="mr-2">Phone Number:</label>
+            <input type="text" id="phone_number" name="phone_number" class="form-control" placeholder="Search by phone" value="{{ request.GET.phone_number }}">
+        </div>
+
+        <!-- From-To Date Filter -->
+        <div class="form-group mr-3">
+            <label for="from_date" class="mr-2">From Date:</label>
+            <input type="date" id="from_date" name="from_date" class="form-control" value="{{ request.GET.from_date }}">
+        </div>
+
+        <div class="form-group mr-3">
+            <label for="to_date" class="mr-2">To Date:</label>
+            <input type="date" id="to_date" name="to_date" class="form-control" value="{{ request.GET.to_date }}">
+        </div>
+
+        <!-- Search Button -->
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Owner</th>
+            <th>Phone Number</th>
+            <th>Pet Name</th>
+            <th>Visit Date</th>
+            <th>Next Check Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for visit in visits %}
+            <tr>
+                <td>{{ visit.owner.name }}</td>
+                <td>{{ visit.owner.phone_number }}</td>
+                <td>{{ visit.pet_name }}</td>
+                <td>{{ visit.visit_date }}</td>
+                <td>{{ visit.next_check_date }}</td>
+                <td>
+                    <a href="{% url 'view_visit' visit.id %}" class="btn btn-info">View Visit</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>User Hours</h1>
+
+    <!-- Buttons Section -->
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{% url 'add_user_hours' %}" class="btn btn-primary me-2">Add User Hours</a>
+        <a href="{% url 'add_user_profile' %}" class="btn btn-secondary me-2">Add Name</a>
+        <a href="{% url 'manage_names' %}" class="btn btn-warning">Manage Names</a> <!-- New Manage Names Button -->
+    </div>
+
+    <!-- Filter Bar -->
+    <form method="GET" class="mb-3 d-flex align-items-end">
+        <!-- Name Filter -->
+        <div class="me-3">
+            <label for="name">Filter by Name:</label>
+            <select name="name" class="form-control" id="name">
+                <option value="">--All Users--</option>
+                {% for value, display in names_choices %}
+                    <option value="{{ value }}" {% if value == request.GET.name %}selected{% endif %}>
+                        {{ display }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- From Date Filter -->
+        <div class="me-3">
+            <label for="from_date">From:</label>
+            <input type="date" name="from_date" class="form-control" id="from_date" value="{{ request.GET.from_date }}">
+        </div>
+
+        <!-- To Date Filter -->
+        <div class="me-3">
+            <label for="to_date">To:</label>
+            <input type="date" name="to_date" class="form-control" id="to_date" value="{{ request.GET.to_date }}">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+
+    <!-- User Hours Table -->
+    <div>
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Arrival Time</th>
+                    <th>Left Time</th>
+                    <th>Total Hours</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for hour in hours %}
+                    <tr>
+                        <td><a href="{% url 'edit_user_hours' hour.id %}">{{ hour.user.name }}</a></td>
+                        <td>{{ hour.arrival_time }}</td>
+                        <td>{{ hour.left_time }}</td>
+                        <td class="total-hours">{{ hour.total_hours }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center">No records found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Total Hours Box -->
+        <div class="text-end mt-3">
+            <strong>Total Hours: </strong> <span id="totalHours">0</span> hrs
+        </div>
+    </div>
+
+    <!-- Download Button -->
+    <div class="text-end mt-3">
+        <a href="{% url 'download_user_hours_excel' %}" class="btn btn-secondary">Download as Excel</a>
+    </div>
+</div>
+
+<!-- Script to Calculate Total Hours -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let total = 0;
+        document.querySelectorAll(".total-hours").forEach(function (cell) {
+            total += parseFloat(cell.textContent) || 0;
+        });
+        document.getElementById("totalHours").textContent = total.toFixed(2);
+    });
+</script>
+
+{% endblock %}

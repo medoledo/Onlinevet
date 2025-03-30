@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="text-center">Add New Visit</h1>
+
+<div class="container">
+    <form method="POST" class="form-container">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="owner">Search and Select Owner:</label>
+            <select name="owner" id="owner" class="form-control" style="width: 100%;" required>
+                <option value="" selected disabled>Select an owner</option>
+                {% for owner in owners %}
+                    <option value="{{ owner.id }}">{{ owner.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="phone_number">Phone Number:</label>
+            <input type="text" name="phone_number" id="phone_number" class="form-control" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="pet_name">Pet Name:</label>
+            <input type="text" name="pet_name" id="pet_name" class="form-control" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="pet_type">Pet Type:</label>
+            <input type="text" name="pet_type" id="pet_type" class="form-control" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="sex">Sex:</label>
+            <input type="text" name="sex" id="sex" class="form-control" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="age">Age:</label>
+            <input type="text" name="age" id="age" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="weight_in_kg">Weight (kg):</label>
+            <input type="text" name="weight_in_kg" id="weight_in_kg" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="diagnosis">Diagnosis:</label>
+            <textarea name="diagnosis" id="diagnosis" class="form-control" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="treatment">Treatment:</label>
+            <textarea name="treatment" id="treatment" class="form-control" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="visit_date">Visit Date:</label>
+            <input type="date" name="visit_date" id="visit_date" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="next_check_date">Next Check Date:</label>
+            <input type="date" name="next_check_date" id="next_check_date" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Visit</button>
+        <a href="{% url 'visits_list' %}" class="btn btn-secondary">Back to Visits List</a>
+    </form>
+</div>
+
+<!-- Add jQuery first -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Then, include Select2 -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Initialize Select2 for searchable dropdown
+        $('#owner').select2({
+            placeholder: "Search for an owner...",
+            allowClear: true,  // Option to clear selection
+            ajax: {
+                url: '/owner/search/',  // Django view to handle search
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term  // User search term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.results
+                    };
+                },
+                cache: true
+            }
+        });
+
+        // Fetch owner details when selection is made
+        $('#owner').on('change', function() {
+            let ownerId = $(this).val();
+            if (ownerId) {
+                updateOwnerDetails(ownerId);
+            }
+        });
+    });
+
+    function updateOwnerDetails(ownerId) {
+        if (ownerId) {
+            fetch(`/owner/details/${ownerId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('phone_number').value = data.phone_number;
+                    document.getElementById('pet_name').value = data.pet_name;
+                    document.getElementById('pet_type').value = data.pet_type;
+                    document.getElementById('sex').value = data.sex;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    }
+</script>
+
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .btn {
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+        color: white;
+    }
+
+    .btn:hover {
+        opacity: 0.8;
+    }
+</style>
+
+{% endblock %}

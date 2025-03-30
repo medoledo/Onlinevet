@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Add User Profile</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}  <!-- Form fields for name -->
+        <button type="submit" class="btn btn-success">Add Name</button>
+    </form>
+
+    <div class="mt-3">
+        <a href="{% url 'userhours' %}" class="btn btn-secondary">Back to User Hours</a>
+    </div>
+</div>
+{% endblock %}

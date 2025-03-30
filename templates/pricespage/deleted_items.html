@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Deleted Items</h1>
+
+    <!-- Table of Deleted Items -->
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Expiration Date</th>
+                <th>Action</th> <!-- Action to restore the item -->
+            </tr>
+        </thead>
+        <tbody>
+            {% if deleted_items %}
+                {% for item in deleted_items %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.category.name }}</td>
+                        <td>${{ item.price }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.exp|date:"Y-m-d" }}</td>
+                        <td>
+                            <!-- Form to restore the deleted item -->
+                            <form action="{% url 'restore_item' item.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success btn-sm">Restore</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">No deleted items found.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <!-- Back Button to return to the Price List page -->
+    <div class="text-end mb-3">
+        <a href="{% url 'pricesedit' %}" class="btn btn-secondary">Back to Price List</a>
+    </div>
+</div>
+{% endblock %}

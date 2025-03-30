@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Edit Owner</h1>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-warning">Save Changes</button>
+</form>
+
+<!-- Delete Owner Button -->
+<form method="POST" action="{% url 'delete_owner' owner.id %}" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Delete Owner</button>
+</form>
+
+<a href="{% url 'owners' %}" class="btn btn-secondary">Back to Owners List</a>
+
+<style>
+    /* Button Styling */
+    .btn {
+        padding: 8px 16px;
+        text-decoration: none;
+        color: white;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        border: none;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border: none;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+    }
+
+    .btn:hover {
+        opacity: 0.8;
+    }
+</style>
+
+{% endblock %}

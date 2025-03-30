@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container col-md-8 col-lg-6 crd-bg"><h1>Owner Details</h1>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div style="padding-bottom: 50px;">
+        <button type="submit" class="btn btn-success" style="padding-left: 20px; padding-right: 20px;">Update</button>
+    </div>
+    </form>
+  {% endblock %}
+</div>
+    

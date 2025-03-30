@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HP Clinic | Home</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        .home-buttons, .admin-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+            max-width: 100%;
+            justify-content: center;
+        }
+
+        .icon-button {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 270px;
+            height: 200px;
+            background-color: #007bff; /* Blue for regular buttons */
+            color: white;
+            text-align: center;
+            font-size: 20px;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .icon-button:hover {
+            background-color: #0056b3;
+        }
+
+        .admin-button {
+            background-color: #dc3545 !important; /* Red for admin buttons */
+        }
+
+        .admin-button:hover {
+            background-color: #b02a37 !important;
+        }
+
+        .icon-button i {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            margin-top: 50px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color: rgb(0, 0, 0);">Welcome to HP Clinic, {{ user.username }}!</h1>
+
+    <div class="section-title">Main Pages</div>
+    <div class="home-buttons">
+        <a href="{% url 'home' %}" class="icon-button">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{% url 'prices' %}" class="icon-button">
+            <i class="fas fa-dollar-sign"></i> المخزون
+        </a>
+        <a href="{% url 'create_invoice' %}" class="icon-button">
+            <i class="fas fa-file-invoice-dollar"></i> انشاء فاتورة
+        </a>
+        <a href="{% url 'sold_today_items' %}" class="icon-button">
+            <i class="fas fa-cash-register"></i> مبيعات اليوم
+        </a>
+
+        <a href="{% url 'bought_today' %}" class="icon-button">
+            <i class="fas fa-shopping-bag"></i> مشتريات اليوم
+        </a>
+
+        <a href="{% url 'owners' %}" class="icon-button">
+            <i class="fas fa-users"></i> اضافة عميل
+        </a>
+        <a href="{% url 'visits_list' %}" class="icon-button">
+            <i class="fas fa-notes-medical"></i> كشف جديد
+        </a>
+        <a href="{% url 'birds_list' %}" class="icon-button">
+            <i class="fas fa-drumstick-bite"></i> حجز الدواجن
+        </a>
+        <a href="{% url 'next_check' %}" class="icon-button">
+            <i class="fas fa-calendar-check"></i> متوقع زيارة اليوم
+        </a>
+        <a href="{% url 'userhours' %}" class="icon-button">
+            <i class="fas fa-user-clock"></i> ساعات المستخدم
+        </a>
+        <a href="{% url 'logout' %}" class="icon-button">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <div class="section-title">Admin Pages</div>
+    <div class="admin-buttons" style="padding-bottom: 150px;">
+        <a href="{% url 'dashboard' %}" class="icon-button admin-button">
+            <i class="fas fa-chart-line"></i> Dashboard
+        </a>
+        <a href="{% url 'pricesedit' %}" class="icon-button admin-button">
+            <i class="fas fa-edit"></i> تعديل المخزون
+        </a>
+        <a href="{% url 'sold_items' %}" class="icon-button admin-button">
+            <i class="fas fa-shopping-cart"></i> المبيعات
+        </a>
+        <a href="{% url 'bought' %}" class="icon-button admin-button">
+            <i class="fas fa-shopping-bag"></i> المشتريات
+        </a>
+        <a href="{% url 'add_user' %}" class="icon-button admin-button">
+            <i class="fas fa-user-plus"></i> اضافة حساب
+        </a>
+    </div>
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Dashboard</h1>
+
+    <!-- Month and Year Filter Form -->
+    <form method="get" class="mb-4">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label for="month">Month</label>
+                <select id="month" name="month" class="form-control">
+                    <option value="">Select Month</option>
+                    {% for month in months %}
+                    <option value="{{ month.0 }}" {% if month.0 == selected_month %} selected {% endif %}>{{ month.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="year">Year</label>
+                <select id="year" name="year" class="form-control">
+                    <option value="">Select Year</option>
+                    {% for year in years %}
+                    <option value="{{ year }}" {% if year == selected_year %} selected {% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Dashboard Cards for Total Sold, Bought, and Profit -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Total Sold</div>
+                <div class="card-body">
+                    <h4 class="card-title">{{ total_sold|default:0 }} EGP</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-header">Total Bought</div>
+                <div class="card-body">
+                    <h4 class="card-title">{{ total_bought|default:0 }} EGP</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Total Profit</div>
+                <div class="card-body">
+                    <h4 class="card-title">{{ total_profit|default:0 }} EGP</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bar Chart for Total Sold, Bought, and Profit -->
+    <div class="row">
+        <div class="col-md-12">
+            <canvas id="profitChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Prepare the data for the chart (total values)
+        var totalSold = {{ total_sold|default:0 }};
+        var totalBought = {{ total_bought|default:0 }};
+        var totalProfit = {{ total_profit|default:0 }};
+        
+        // Get the canvas element
+        var ctx = document.getElementById("profitChart").getContext("2d");
+
+        // Create the bar chart
+        var profitChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Total Sold', 'Total Bought', 'Total Profit'],
+                datasets: [{
+                    label: "Amount (EGP)",
+                    data: [totalSold, totalBought, totalProfit],
+                    backgroundColor: ["#007bff", "#dc3545", "#28a745"],
+                    borderColor: ["#0056b3", "#c82333", "#218838"],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+<!-- Custom Styles -->
+<style>
+    /* Improve card appearance */
+    .card {
+        border-radius: 10px;
+    }
+    .card-header {
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    .card-body {
+        text-align: center;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+    }
+
+    /* Style for the chart container */
+    #profitChart {
+        margin-top: 40px;
+        max-height: 400px;
+    }
+</style>
+
+{% endblock %}

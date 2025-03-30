@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Add New Bird</h1>
+    <form method="POST" class="card p-4 shadow-lg bg-light">
+        {% csrf_token %}
+
+        <!-- Owner Information: Name and Phone Number -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label class="form-label">Name</label>
+                {{ form.name }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Phone Number</label>
+                {{ form.phone_number }}
+            </div>
+        </div>
+
+        <!-- Birds List (Dynamic addition of birds) -->
+        <div id="birds-container">
+            <div class="bird-row row mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Bird Type</label>
+                    <select class="form-control bird-type" name="bird_type">
+                        <option value="">Select a bird</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Price per Bird</label>
+                    <input type="text" class="form-control bird-price" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Quantity</label>
+                    <input type="number" class="form-control bird-quantity" name="quantity" min="1" value="1">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Total Price</label>
+                    <input type="text" class="form-control bird-total" readonly>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Another Bird Button -->
+        <button type="button" id="add-bird-btn" class="btn btn-primary w-100 mb-4">Add Another Bird</button>
+
+        <!-- Paid Money and Remaining to Pay -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label class="form-label">Paid Money</label>
+                <input type="number" id="id_payed_money" class="form-control" name="payed_money" value="{{ form.payed_money.value|default:0 }}" step="0.01">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Remaining to Pay</label>
+                <input type="text" id="id_remaining_to_pay" class="form-control" readonly>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-success w-100">Save</button>
+    </form>
+</div>
+
+<style>
+    input, select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+        margin-top: 5px;
+    }
+
+    label {
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .card {
+        max-width: 700px;
+        margin: auto;
+        border-radius: 15px;
+        padding: 20px;
+    }
+
+    .form-control {
+        font-size: 1.2rem;
+        padding: 12px;
+    }
+
+    .btn {
+        padding: 15px;
+        font-size: 1.2rem;
+        border-radius: 8px;
+    }
+
+    .form-label {
+        font-size: 1rem;
+        font-weight: bold;
+    }
+
+    /* Adjustments for small screens */
+    @media (max-width: 768px) {
+        .card {
+            padding: 15px;
+            margin: 10px;
+        }
+
+        .btn {
+            padding: 12px;
+            font-size: 1.1rem;
+        }
+
+        .form-control {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let birdPrices = JSON.parse('{{ bird_prices|safe }}');
+
+        function populateBirdTypes(dropdown) {
+            dropdown.innerHTML = '<option value="">Select a bird</option>';
+            for (let birdType in birdPrices) {
+                let option = document.createElement('option');
+                option.value = birdType;
+                option.textContent = birdType;
+                dropdown.appendChild(option);
+            }
+        }
+
+        // Initialize dropdown for the first row
+        document.querySelectorAll('.bird-type').forEach(dropdown => populateBirdTypes(dropdown));
+
+        function updatePrice(event) {
+            let row = event.target.closest(".bird-row");
+            let priceField = row.querySelector(".bird-price");
+            let quantityField = row.querySelector(".bird-quantity");
+            let totalField = row.querySelector(".bird-total");
+
+            let price = birdPrices[event.target.value] || 0;
+            priceField.value = price;
+
+            let quantity = parseFloat(quantityField.value) || 0;
+            totalField.value = (price * quantity).toFixed(2);
+
+            calculateTotal();
+        }
+
+        function updateRowTotal(event) {
+            let row = event.target.closest(".bird-row");
+            let price = parseFloat(row.querySelector(".bird-price").value) || 0;
+            let quantity = parseFloat(event.target.value) || 0;
+            row.querySelector(".bird-total").value = (price * quantity).toFixed(2);
+
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            document.querySelectorAll(".bird-total").forEach(field => {
+                total += parseFloat(field.value) || 0;
+            });
+
+            let payed = parseFloat(document.getElementById("id_payed_money").value) || 0;
+            document.getElementById("id_remaining_to_pay").value = (total - payed).toFixed(2);
+        }
+
+        document.querySelectorAll('.bird-type').forEach(dropdown => dropdown.addEventListener("change", updatePrice));
+        document.querySelectorAll('.bird-quantity').forEach(input => input.addEventListener("input", updateRowTotal));
+
+        document.getElementById("id_payed_money").addEventListener("input", calculateTotal);
+
+        document.getElementById("add-bird-btn").addEventListener("click", function() {
+            let newBirdRow = document.createElement("div");
+            newBirdRow.classList.add("bird-row", "row", "mb-4");
+            newBirdRow.innerHTML = `
+                <div class="col-md-6">
+                    <label class="form-label">Bird Type</label>
+                    <select class="form-control bird-type" name="bird_type">
+                        <option value="">Select a bird</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Price per Bird</label>
+                    <input type="text" class="form-control bird-price" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Quantity</label>
+                    <input type="number" class="form-control bird-quantity" name="quantity" min="1" value="1">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Total Price</label>
+                    <input type="text" class="form-control bird-total" readonly>
+                </div>
+            `;
+            document.getElementById("birds-container").appendChild(newBirdRow);
+
+            let newBirdDropdown = newBirdRow.querySelector(".bird-type");
+            let newQuantityField = newBirdRow.querySelector(".bird-quantity");
+
+            populateBirdTypes(newBirdDropdown); // Populate only the new dropdown
+            newBirdDropdown.addEventListener("change", updatePrice);
+            newQuantityField.addEventListener("input", updateRowTotal);
+        });
+    });
+</script>
+
+{% endblock %}

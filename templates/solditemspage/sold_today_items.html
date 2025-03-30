@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Sold Items (Today)</h1>
+
+    <!-- Table of Sold Items -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Discount</th>
+                <th>Total Price</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invoice in invoices %}
+                <tr>
+                    <td>{{ invoice.item.name }}</td>
+                    <td>{{ invoice.category }}</td>
+                    <td>{{ invoice.price }}</td>
+                    <td>{{ invoice.quantity }}</td>
+                    <td>{{ invoice.discount }}</td>
+                    <td>{{ invoice.total_price }}</td>
+                    <td>{{ invoice.date }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center">No invoices found for today.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Total Price box below the table -->
+    <div class="row">
+        <div class="col-md-6 offset-md-6">
+            <h4>Total Price: <strong>{{ total_price|floatformat:2 }}</strong></h4>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

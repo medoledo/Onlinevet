@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Edit Bird</h1>
+
+    <!-- Form to Edit Bird -->
+    <form method="POST" class="card p-4 shadow-lg bg-light">
+        {% csrf_token %}
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Name</label>
+                {{ form.name }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Phone Number</label>
+                {{ form.phone_number }}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Bird Type</label>
+                {{ form.bird_type }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Price per Bird</label>
+                <input type="text" id="id_price" class="form-control" readonly>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Quantity</label>
+                {{ form.quantity }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Total Price</label>
+                <input type="text" id="id_total" class="form-control" readonly>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Paid Money</label>
+                {{ form.payed_money }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Remaining to Pay</label>
+                <input type="text" id="id_remaining_to_pay" class="form-control" readonly>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <button type="submit" class="btn btn-success w-100">Save</button>
+    </form>
+
+    <!-- Form to Delete Bird -->
+    <form method="POST" action="{% url 'delete_bird' bird.pk %}" class="mt-3">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger w-100">Delete Bird</button>
+    </form>
+</div>
+
+<style>
+    input, select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    label {
+        font-weight: bold;
+    }
+    .card {
+        max-width: 600px;
+        margin: auto;
+        border-radius: 10px;
+    }
+    button {
+        margin-top: 10px;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let birdDropdown = document.getElementById("id_bird_type");
+        let priceField = document.getElementById("id_price");
+        let quantityField = document.getElementById("id_quantity");
+        let totalField = document.getElementById("id_total");
+        let payedField = document.getElementById("id_payed_money");
+        let remainingField = document.getElementById("id_remaining_to_pay");
+
+        // Fetch the initial bird prices passed to the template from the view
+        let birdPrices = JSON.parse('{{ bird_prices|safe }}');
+
+        // Set the initial price from the selected bird type when page loads
+        let selectedBird = birdDropdown.value;
+        if (selectedBird in birdPrices) {
+            priceField.value = birdPrices[selectedBird];
+            calculateTotal();
+        }
+
+        // Update the price dynamically when the bird type is changed
+        birdDropdown.addEventListener("change", function() {
+            let selectedBird = birdDropdown.value;
+            if (selectedBird in birdPrices) {
+                priceField.value = birdPrices[selectedBird];
+                calculateTotal();
+            }
+        });
+
+        // Calculate total and remaining amount
+        function calculateTotal() {
+            let price = parseFloat(priceField.value) || 0;
+            let quantity = parseFloat(quantityField.value) || 0;
+            let payed = parseFloat(payedField.value) || 0;
+            
+            let total = price * quantity;
+            totalField.value = total.toFixed(2);
+
+            let remaining = total - payed;
+            remainingField.value = remaining.toFixed(2);
+        }
+
+        // Update total and remaining when quantity or paid money changes
+        quantityField.addEventListener("input", calculateTotal);
+        payedField.addEventListener("input", calculateTotal);
+    });
+</script>
+
+{% endblock %}

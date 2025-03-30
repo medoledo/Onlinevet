@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Edit User: {{ user.username }}</h1>
+
+    <!-- Username Edit Form -->
+    <h3>Edit Username</h3>
+    <form method="POST">
+        {% csrf_token %}
+        {{ username_form.as_p }}
+        <button type="submit" class="btn btn-primary">Update Username</button>
+    </form>
+
+    <!-- Password Edit Form -->
+    <h3>Change Password</h3>
+    <form method="POST">
+        {% csrf_token %}
+        {{ password_form.as_p }}
+        <button type="submit" name="change_password" class="btn btn-warning">Change Password</button>
+    </form>
+
+    <a href="{% url 'add_user' %}" class="btn btn-secondary">Back to Users List</a>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h1>Edit User Hours</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}  <!-- Displays form fields -->
+        <button type="submit" class="btn btn-success">Save Changes</button>
+    </form>
+
+    <!-- Delete Button -->
+    <form method="POST" action="{% url 'delete_user_hours' pk=user_hour.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger mt-3">Delete</button>
+    </form>
+
+    <!-- Button to go back to the list page -->
+    <a href="{% url 'userhours' %}" class="btn btn-secondary mt-3">Back to User Hours</a>
+</div>
+{% endblock %}

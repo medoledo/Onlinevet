@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Add Bird Type</h1>
+
+    <!-- Form to Add a New Bird Type -->
+    <form method="POST" class="card p-4 shadow-lg bg-light">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label class="form-label">Bird Type</label>
+            {{ form.bird_type }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Price per Bird</label>
+            {{ form.bird_price }}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Save</button>
+    </form>
+
+    <hr>
+
+    <!-- List of Bird Types -->
+    <h2 class="mt-4">Bird Types</h2>
+    <table class="table table-bordered table-hover shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Bird Type</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bird_type in bird_types %}
+                <tr>
+                    <td>{{ bird_type.bird_type }}</td>
+                    <td>{{ bird_type.bird_price }}</td>
+                    <td>
+                        <a href="{% url 'edit_bird_type' bird_type.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'delete_bird_type' bird_type.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    input, select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    label {
+        font-weight: bold;
+    }
+    .card {
+        max-width: 500px;
+        margin: auto;
+        border-radius: 10px;
+    }
+    .btn {
+        margin-top: 10px;
+    }
+    table {
+        margin-top: 20px;
+    }
+</style>
+
+{% endblock %}

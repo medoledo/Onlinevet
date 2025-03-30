@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h1>Price List</h1>
+
+    <!-- Buttons: Add Item & Add Category -->
+    <div class="mb-3 text-end">
+        <a href="{% url 'add_item' %}" class="btn btn-success">Add Item</a>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">Add Category</button>
+    </div>
+
+    <!-- Add Category Modal -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCategoryModalLabel">Add New Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{% url 'add_category' %}">
+                        {% csrf_token %}
+                        {{ category_form.as_p }}
+                        <button type="submit" class="btn btn-primary">Add Category</button>
+                    </form>
+                    <hr>
+                    <h5>Existing Categories</h5>
+                    <ul class="list-group">
+                        {% for category in categories %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ category.name }}
+                                <a href="{% url 'delete_category' category.id %}" class="btn btn-danger btn-sm">Delete</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Combined Search and Category Filter Form -->
+    <form method="GET" action="{% url 'pricesedit' %}" class="mb-3" id="search-form">
+        <div class="input-group mb-2">
+            <input type="text" id="search-input" name="search" value="{{ query }}" class="form-control" placeholder="Search by item name...">
+        </div>
+        <div class="input-group mb-2">
+            <select name="category" class="form-control" id="category-select">
+                <option value="">Filter by Category</option>
+                {% for category in categories %}
+                    <option value="{{ category.name }}" {% if query_category == category.name %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">Search & Filter</button>
+            <a href="?low_stock=true" class="btn btn-danger">Show Low Stock Items</a>
+            <a href="?sort_exp=true" class="btn btn-warning">Show Nearest Expiration Date</a>
+            <a href="?show_expired=true" class="btn btn-dark">Show Expired Items</a>
+        </div>
+    </form>
+
+    <!-- Display Items Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered mt-3" id="items-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Expiration Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if items %}
+                    {% for item in items %}
+                        <tr {% if item.quantity < 5 %} style="background-color: #ffcccc;" {% endif %}>
+                            <td {% if item.exp and item.exp < today %} style="color: red; font-weight: bold;" {% endif %}>
+                                <a href="{% url 'edit_item' item.id %}">{{ item.name }}</a>
+                            </td>
+                            <td>{{ item.category.name }}</td>
+                            <td>${{ item.price }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.exp|date:"Y-m-d" }}</td>
+                            <td>
+                                <a href="{% url 'edit_item' item.id %}" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="{% url 'delete_item' item.id %}" class="btn btn-danger btn-sm">Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No items found.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Download Button -->
+    <div class="text-end mb-3">
+        <a href="{% url 'download_price_list' %}" class="btn btn-secondary">Download as Excel</a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('search-input');
+        const categorySelect = document.getElementById('category-select');
+        const itemsTable = document.getElementById('items-table');
+        
+        searchInput.addEventListener('input', function () {
+            performSearch();
+        });
+
+        categorySelect.addEventListener('change', function () {
+            performSearch();
+        });
+
+        function performSearch() {
+            const searchQuery = searchInput.value;
+            const categoryQuery = categorySelect.value;
+            const lowStockQuery = new URLSearchParams(window.location.search).get('low_stock') || '';
+            const sortExpQuery = new URLSearchParams(window.location.search).get('sort_exp') || '';
+            const showExpiredQuery = new URLSearchParams(window.location.search).get('show_expired') || '';
+
+            fetch(`{% url 'pricesedit' %}?search=${searchQuery}&category=${categoryQuery}&low_stock=${lowStockQuery}&sort_exp=${sortExpQuery}&show_expired=${showExpiredQuery}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Clear the table and append new rows based on the response
+                const tbody = itemsTable.querySelector('tbody');
+                tbody.innerHTML = '';
+                data.items.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.style.backgroundColor = item.quantity < 5 ? '#ffcccc' : '';
+                    const textColor = item.is_expired ? 'style="color: red; font-weight: bold;"' : '';
+                    tr.innerHTML = `
+                        <td ${textColor}><a href="/edit_item/${item.id}/">${item.name}</a></td>
+                        <td>${item.category}</td>
+                        <td>$${item.price}</td>
+                        <td>${item.quantity}</td>
+                        <td>${item.exp}</td>
+                        <td>
+                            <a href="/edit_item/${item.id}/" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="/delete_item/${item.id}/" class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

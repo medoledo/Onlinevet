@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h1>Price List</h1>
+
+    <!-- Search and Filter Form -->
+    <form method="GET" action="{% url 'prices' %}" class="mb-3" id="search-form">
+        <div class="input-group mb-2">
+            <div style="width: 70%;">
+                <input type="text" name="search" value="{{ query }}" class="form-control" placeholder="Search by item name..." id="search-input">
+            </div>
+        </div>
+        <div class="input-group mb-2">
+            <div style="width: 70%;">
+                <select name="category" class="form-control">
+                    <option value="">Filter by Category</option>
+                    {% for category in categories %}
+                        <option value="{{ category.name }}" {% if query_category == category.name %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">Search & Filter</button>
+            <a href="?low_stock=true" class="btn btn-danger">Show Low Stock Items</a>
+            <a href="?sort_exp=true" class="btn btn-warning">Show Nearest Expiration Date</a>
+            <a href="?show_expired=true" class="btn btn-dark">Show Expired Items</a>
+        </div>
+    </form>
+
+    <!-- Display Items Table -->
+    <div style="padding-bottom: 1000px;">
+        <table class="table table-bordered mt-3" id="items-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Expiration Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if items %}
+                    {% for item in items %}
+                        <tr>
+                            <td {% if item.exp and item.exp < today %} style="color: red; font-weight: bold;" {% endif %}>
+                                {{ item.name }}
+                            </td>
+                            <td>{{ item.category.name }}</td>
+                            <td>${{ item.price }}</td>
+                            <td {% if item.quantity < 5 %} style="background-color: #ffcccc;" {% endif %}>
+                                {{ item.quantity }}
+                            </td>
+                            <td>{{ item.exp|date:"Y-m-d" }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">No items found.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Download Button -->
+        <div class="text-end mb-3" style="padding-right: 100px;">
+            <a href="{% url 'download_price_list' %}" class="btn btn-secondary">Download as Excel</a>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery for AJAX -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#search-input').on('input', function() {
+            var query = $(this).val();
+            var category = $('select[name="category"]').val();
+            var lowStock = '{{ request.GET.low_stock }}';
+            var sortExp = '{{ request.GET.sort_exp }}';
+            var showExpired = '{{ request.GET.show_expired }}';
+
+            $.ajax({
+                url: '{% url "prices" %}',
+                data: {
+                    'search': query,
+                    'category': category,
+                    'low_stock': lowStock,
+                    'sort_exp': sortExp,
+                    'show_expired': showExpired
+                },
+                dataType: 'json',
+                success: function(response) {
+                    var rows = '';
+                    response.items.forEach(function(item) {
+                        var textColor = item.is_expired ? 'style="color: red; font-weight: bold;"' : '';
+                        var quantityStyle = item.quantity < 5 ? 'style="background-color: #ffcccc;"' : '';
+
+                        rows += 
+                            `<tr>
+                                <td ${textColor}>${item.name}</td>
+                                <td>${item.category}</td>
+                                <td>$${item.price}</td>
+                                <td ${quantityStyle}>${item.quantity}</td>
+                                <td>${item.exp}</td>
+                            </tr>`;
+                    });
+
+                    if (!rows) {
+                        rows = `<tr><td colspan="5" class="text-center">No items found.</td></tr>`;
+                    }
+                    $('#items-table tbody').html(rows);
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}

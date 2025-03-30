@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="text-center">Edit Visit</h1>
+
+<div class="form-container">
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="id_owner">Owner</label>
+            {{ form.owner }}
+        </div>
+
+        <div class="form-group">
+            <label>Pet Name</label>
+            <input type="text" class="form-control" value="{{ visit.pet_name }}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Pet Type</label>
+            <input type="text" class="form-control" value="{{ visit.pet_type }}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Sex</label>
+            <input type="text" class="form-control" value="{{ visit.sex }}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="id_age">Age</label>
+            {{ form.age }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_weight_in_kg">Weight (kg)</label>
+            {{ form.weight_in_kg }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_diagnosis">Diagnosis</label>
+            {{ form.diagnosis }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_treatment">Treatment</label>
+            {{ form.treatment }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_visit_date">Visit Date</label>
+            {{ form.visit_date }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_next_check_date">Next Check Date</label>
+            {{ form.next_check_date }}
+        </div>
+
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'view_visit' visit.id %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background: white;
+        resize: vertical; /* Allows resizing */
+    }
+
+    textarea.form-control {
+        min-height: 80px; /* Default height */
+        max-height: 300px; /* Prevents excessive resizing */
+    }
+
+    .btn {
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+        color: white;
+    }
+
+    .btn:hover {
+        opacity: 0.8;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        function autoResizeTextarea(textarea) {
+            textarea.style.height = "auto"; // Reset height
+            textarea.style.height = textarea.scrollHeight + "px"; // Expand based on content
+        }
+
+        let textareas = document.querySelectorAll("textarea.form-control");
+        textareas.forEach(textarea => {
+            autoResizeTextarea(textarea); // Resize on page load
+            textarea.addEventListener("input", function () {
+                autoResizeTextarea(textarea); // Resize as user types
+            });
+        });
+    });
+</script>
+
+{% endblock %}
