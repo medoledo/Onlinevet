@@ -1372,6 +1372,12 @@ def dashboard(request):
 
 
 
+@login_required(login_url='/login/')
+def workhours(request):
+    return render(request, 'workhourspage/workhours.html')
+
+
+
     
 
 def logout_view(request):

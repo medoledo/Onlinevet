@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'corsheaders',
+    'latermoney.apps.LatermoneyConfig',
     'bought.apps.BoughtConfig',
     'newvisit.apps.NewvisitConfig',
     'usercreation.apps.UsercreationConfig',
